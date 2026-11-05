@@ -1,1 +1,198 @@
-DS 
+-- KSR_PLUGIN_ID: snaptube_share_loader
+-- KSR_VERSION: 1.0
+-- Snaptube Share v1.0 - Developers: Muhammad Ramzan Qadri and Claude
+-- Pure ASCII file. Updates are kept in the app's private folder, never in the plugin folder.
+SER_UPDATE_URL = "https://raw.githubusercontent.com/ramzanjunejosahib345-star/Smart-Echo-Recorder-/main/snap%20share"
+SER_VERSION_URL = "https://raw.githubusercontent.com/ramzanjunejosahib345-star/Smart-Echo-Recorder-/main/snap%20virgin"
+require "import"
+import "java.io.*"
+import "java.lang.Byte"
+import "java.lang.reflect.Array"
+import "java.util.zip.Inflater"
+import "android.os.*"
+local EMB_VER = "1.0"
+local PAYLOAD = {
+"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"
+}
+local function say(t) pcall(function() service.speak(t) end) end
+local function later(ms, fn)
+  if type(task) == "function" then task(ms, fn)
+  else
+    local h = Handler(Looper.getMainLooper())
+    h.postDelayed(luajava.createProxy("java.lang.Runnable", {run = fn}), ms)
+  end
+end
+local function cacheFile()
+  local dir = nil
+  pcall(function() dir = service.getFilesDir() end)
+  if dir == nil then pcall(function() dir = service.getExternalFilesDir(nil) end) end
+  if dir == nil then return nil end
+  return tostring(dir.getAbsolutePath()) .. "/snaptube_code.lua"
+end
+local function verParts(v)
+  local t = {}
+  for n in tostring(v or ""):gmatch("%d+") do t[#t + 1] = tonumber(n) end
+  return t
+end
+local function isNewer(a, b)
+  local x, y = verParts(a), verParts(b)
+  for i = 1, math.max(#x, #y) do
+    local p, q = x[i] or 0, y[i] or 0
+    if p ~= q then return p > q end
+  end
+  return false
+end
+local function readAll(p)
+  local ok, d = pcall(function()
+    local f = io.open(p, "rb")
+    if not f then return nil end
+    local t = f:read("a")
+    f:close()
+    return t
+  end)
+  if ok then return d end
+  return nil
+end
+local function inflateB64(b64)
+  local data = luajava.bindClass("android.util.Base64").decode(b64, 0)
+  local inf = Inflater()
+  inf.setInput(data)
+  local baos = ByteArrayOutputStream()
+  local buf = Array.newInstance(Byte.TYPE, 65536)
+  local guard = 0
+  while not inf.finished() and guard < 8000 do
+    local n = tonumber(inf.inflate(buf))
+    if n > 0 then baos.write(buf, 0, n)
+    elseif inf.needsInput() or inf.needsDictionary() then break end
+    guard = guard + 1
+  end
+  pcall(function() inf["end"]() end)
+  return tostring(baos.toString("UTF-8"))
+end
+local function embeddedCode()
+  return inflateB64(table.concat(PAYLOAD))
+end
+function SER_EXTRACT(text)
+  local ok, res = pcall(function()
+    local parts = {}
+    for line in tostring(text):gmatch("[^\r\n]+") do
+      local b = line:match('^"([A-Za-z0-9+/=]+)",?$')
+      if b then parts[#parts + 1] = b end
+    end
+    if #parts == 0 then return nil end
+    return inflateB64(table.concat(parts))
+  end)
+  if ok then return res end
+  return nil
+end
+-- Background update check: downloads quietly, applies the next time the plugin is run.
+local function download(url, onResult)
+  local H = Handler(Looper.getMainLooper())
+  local T = luajava.newInstance("java.lang.Thread", luajava.createProxy("java.lang.Runnable", {run = function()
+    local ok, res = pcall(function()
+      local u = luajava.newInstance("java.net.URL", url .. "?t=" .. tostring(os.time()))
+      local conn = u.openConnection()
+      conn.setConnectTimeout(6000)
+      conn.setReadTimeout(10000)
+      pcall(function() conn.setRequestProperty("User-Agent", "Mozilla/5.0") end)
+      local code = tonumber(conn.getResponseCode())
+      if code ~= 200 then error("HTTP " .. tostring(code)) end
+      local ins = conn.getInputStream()
+      local bo = luajava.newInstance("java.io.ByteArrayOutputStream")
+      local b = Array.newInstance(Byte.TYPE, 16384)
+      local okr, er = pcall(function()
+        while true do
+          local n = tonumber(ins.read(b))
+          if n == nil or n < 0 then break end
+          bo.write(b, 0, n)
+        end
+      end)
+      pcall(function() ins.close() end)
+      if not okr then error(er) end
+      return bo.toByteArray()
+    end)
+    H.post(luajava.createProxy("java.lang.Runnable", {run = function() pcall(function() onResult(ok, res) end) end}))
+  end}))
+  T.start()
+end
+local function toText(bytes)
+  local t = ""
+  pcall(function() t = tostring(luajava.newInstance("java.lang.String", bytes, "UTF-8")) end)
+  return t
+end
+local function currentVersion()
+  local cf = cacheFile()
+  local cached = cf and readAll(cf)
+  if cached and cached:find("KSR_PLUGIN_ID:%s*snaptube_share%s") then
+    local cv = cached:match("KSR_VERSION:%s*([%d%.]+)")
+    if cv and isNewer(cv, EMB_VER) then return cv end
+  end
+  return EMB_VER
+end
+local function checkUpdate()
+  if SER_VERSION_URL == "" or SER_UPDATE_URL == "" then return end
+  local mine = currentVersion()
+  download(SER_VERSION_URL, function(ok, res)
+    if not ok then return end
+    local ver = toText(res):match("(%d+[%d%.]*)")
+    if not ver or not isNewer(ver, mine) then return end
+    download(SER_UPDATE_URL, function(ok2, res2)
+      if not ok2 then return end
+      local text = toText(res2)
+      if not text:find("KSR_PLUGIN_ID:%s*snaptube_share_loader") then return end
+      local lv = text:match("KSR_VERSION:%s*([%d%.]+)")
+      if lv ~= ver then return end
+      local inner = SER_EXTRACT(text)
+      if not inner then return end
+      local hv = inner:match("KSR_VERSION:%s*([%d%.]+)")
+      if hv ~= ver or not inner:find("KSR_PLUGIN_ID:%s*snaptube_share%s") then return end
+      local fn = load(inner, "=snaptube_new", "t", _ENV)
+      if not fn then return end
+      local cf = cacheFile()
+      if not cf then return end
+      local tmp = cf .. ".tmp"
+      local o = io.open(tmp, "wb")
+      if not o then return end
+      local okw = pcall(function() o:write(inner) o:flush() end)
+      pcall(function() o:close() end)
+      if not okw then pcall(function() os.remove(tmp) end) return end
+      pcall(function() os.remove(cf) end)
+      if os.rename(tmp, cf) then
+        say("Snaptube Share update " .. ver .. " is ready. It will work the next time you run the plugin.")
+      end
+    end)
+  end)
+end
+function SER_START()
+  local cf = cacheFile()
+  local cached = cf and readAll(cf)
+  local started = false
+  if cached and cached:find("KSR_PLUGIN_ID:%s*snaptube_share%s") then
+    local cv = cached:match("KSR_VERSION:%s*([%d%.]+)")
+    if cv and isNewer(cv, EMB_VER) then
+      local fn = load(cached, "=snaptube_update", "t", _ENV)
+      if fn then
+        local ok, err = pcall(fn)
+        if ok then started = true
+        else
+          say("Updated version could not start, using built-in version.")
+          pcall(function() os.remove(cf) end)
+        end
+      end
+    end
+  end
+  if not started then
+    local ok, err = pcall(function()
+      local fn, e = load(embeddedCode(), "=snaptube_share", "t", _ENV)
+      if not fn then error("load failed: " .. tostring(e)) end
+      fn()
+    end)
+    if not ok then say("Plugin could not start. " .. tostring(err)) end
+  end
+  pcall(function() later(6000, function() pcall(checkUpdate) end) end)
+end
+SER_START()
